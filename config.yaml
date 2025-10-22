@@ -1,0 +1,42 @@
+# Configuration for BitFlip-25 DQN Experiments
+
+environment:
+  n_bits: 25
+  max_steps: 50
+
+dqn:
+  learning_rate: 0.001
+  gamma: 0.98
+  epsilon_start: 1.0
+  epsilon_end: 0.01
+  epsilon_decay: 0.995
+  target_update_freq: 100
+  batch_size: 128
+  buffer_size: 100000
+  hidden_sizes: [256, 256]
+  
+dqn_her:
+  learning_rate: 0.001
+  gamma: 0.98
+  epsilon_start: 1.0
+  epsilon_end: 0.01
+  epsilon_decay: 0.995
+  target_update_freq: 100
+  batch_size: 128
+  buffer_size: 100000
+  hidden_sizes: [256, 256]
+  her_strategy: "future"  # Options: future, final, episode
+  her_k: 4  # Number of additional goals to sample per transition
+
+training:
+  num_epochs: 200
+  episodes_per_epoch: 50
+  eval_episodes: 100
+  save_freq: 20
+  log_freq: 1
+  
+experiment:
+  seed: 42
+  device: "cuda"  # Options: cuda, cpu, mps
+  save_dir: "experiments"
+  plot_style: "seaborn"
