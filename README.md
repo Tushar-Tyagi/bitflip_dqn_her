@@ -1,4 +1,4 @@
-# BitFlip-25 DQN vs DQN-HER
+# BitFlip DQN vs DQN-HER
 
 A complete implementation comparing DQN and DQN with Hindsight Experience Replay (HER) on the BitFlip-25 environment.
 
