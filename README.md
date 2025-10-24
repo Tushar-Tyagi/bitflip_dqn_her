@@ -12,6 +12,7 @@ The BitFlip-25 environment is a challenging sparse reward environment where the 
 
 ## Project Structure
 
+```
 bitflip_dqn/
 ├── src/
 │   ├── environment.py       # BitFlip-25 implementation
@@ -31,7 +32,7 @@ bitflip_dqn/
 ├── README.md              # Documentation
 ├── USAGE_GUIDE.md         # Detailed guide
 └── PROJECT_SUMMARY.md     # Complete summary
-
+```
 ## Installation
 
 ```bash
