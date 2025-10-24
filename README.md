@@ -89,14 +89,6 @@ The project generates:
 - Episode length statistics
 - Saved model checkpoints
 
-## Key Features
-
-- **Modular Design**: Easy to extend and modify
-- **HER Implementation**: Includes future, final, and episode HER strategies
-- **Comprehensive Logging**: Track all training metrics
-- **Visualization**: Publication-ready plots
-- **Reproducibility**: Fixed random seeds and saved configurations
-
 ## References
 
 - [Playing Atari with Deep Reinforcement Learning (DQN)](https://arxiv.org/abs/1312.5602)
