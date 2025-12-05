@@ -4,9 +4,10 @@ A complete implementation comparing DQN and DQN with Hindsight Experience Replay
 
 ## Overview
 
-This project implements and compares two reinforcement learning approaches:
+This project implements and compares three reinforcement learning approaches:
 - **DQN (Deep Q-Network)**: Standard DQN algorithm
 - **DQN-HER**: DQN enhanced with Hindsight Experience Replay for sparse reward environments
+- **DQN-HER-Prioritised**: DQN with HER and Prioritized Experience Replay, supporting multiple priority strategies
 
 The BitFlip-25 environment is a challenging sparse reward environment where the agent must flip bits to match a target configuration.
 
@@ -65,10 +66,10 @@ python train_dqn.py
 python train_dqn_her.py
 ```
 
-### Train DQN-HER-Priotised
+### Train DQN-HER-Prioritised
 
 ```bash
-python train_dqn_her.py
+python train_dqn_her_prioritised.py
 ```
 
 ### Compare Results and Plot
@@ -107,3 +108,4 @@ The project generates:
 
 - [Playing Atari with Deep Reinforcement Learning (DQN)](https://arxiv.org/abs/1312.5602)
 - [Hindsight Experience Replay](https://arxiv.org/abs/1707.01495)
+- [PRIORITIZED Experience Replay](https://arxiv.org/pdf/1511.05952)
