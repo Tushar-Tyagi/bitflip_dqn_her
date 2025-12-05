@@ -7,7 +7,7 @@ import torch
 from typing import List, Tuple, Dict, Optional
 
 from prioritized_buffer_base import PrioritizedBufferBase
-from priority_compute import PriorityComputer, TDErrorPriorityComputer
+from priority_computer import PriorityComputer #, TDErrorPriorityComputer
 
 
 class PrioritizedHERBuffer(PrioritizedBufferBase):
@@ -251,7 +251,7 @@ class PrioritizedHERBuffer(PrioritizedBufferBase):
 
 def test_prioritized_her_buffer():
     """Test prioritized HER buffer functionality."""
-    from priority_compute import TDErrorPriorityComputer
+    # from priority_compute import TDErrorPriorityComputer
     
     print("Testing Prioritized HER Buffer...")
     
@@ -260,7 +260,7 @@ def test_prioritized_her_buffer():
         capacity=10000,
         observation_size=2 * n_bits,
         goal_size=n_bits,
-        priority_compute=TDErrorPriorityComputer(),
+        priority_compute=None,
         her_strategy='future',
         her_k=4,
         alpha=0.6,

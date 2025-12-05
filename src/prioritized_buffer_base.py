@@ -9,7 +9,7 @@ from typing import Tuple, Optional
 from abc import ABC, abstractmethod
 
 from sum_tree import SumTree, MinTree
-from priority_computer import PriorityComputer, TDErrorPriorityComputer
+from priority_computer import PriorityComputer # , TDErrorPriorityComputer
 
 
 class PrioritizedBufferBase(ABC):
@@ -56,7 +56,7 @@ class PrioritizedBufferBase(ABC):
         self.frame = 0
         
         # Default to TD error if no priority computer provided
-        self.priority_compute = priority_compute or TDErrorPriorityComputer(epsilon=epsilon)
+        self.priority_compute = priority_compute # or TDErrorPriorityComputer(epsilon=epsilon)
         
         # Sum tree for efficient priority sampling
         self.sum_tree = SumTree(capacity)
@@ -164,6 +164,7 @@ class PrioritizedBufferBase(ABC):
         weights = []
         for priority in priorities:
             prob = priority / self.sum_tree.total()
+            prob = max(prob, self.epsilon)
             weight = (prob * self.size) ** (-beta)
             normalized_weight = weight / max_weight
             weights.append(normalized_weight)
@@ -197,7 +198,8 @@ class PrioritizedBufferBase(ABC):
         
         for idx, priority in zip(indices, priorities):
             # Clip priority to avoid numerical issues
-            priority = max(priority, self.epsilon)
+            # priority = max(priority, self.epsilon)
+            priority = priority + self.epsilon
             
             # Apply alpha exponent
             priority_alpha = priority ** self.alpha
@@ -210,33 +212,33 @@ class PrioritizedBufferBase(ABC):
             # Track max priority
             self.max_priority = max(self.max_priority, priority)
     
-    def update_priorities_from_batch(self,
-                                     indices: torch.Tensor,
-                                     observations: torch.Tensor,
-                                     actions: torch.Tensor,
-                                     rewards: torch.Tensor,
-                                     next_observations: torch.Tensor,
-                                     dones: torch.Tensor,
-                                     agent: object):
-        """
-        Compute and update priorities using the priority computer.
+    # def update_priorities_from_batch(self,
+    #                                  indices: torch.Tensor,
+    #                                  observations: torch.Tensor,
+    #                                  actions: torch.Tensor,
+    #                                  rewards: torch.Tensor,
+    #                                  next_observations: torch.Tensor,
+    #                                  dones: torch.Tensor,
+    #                                  agent: object):
+    #     """
+    #     Compute and update priorities using the priority computer.
         
-        Args:
-            indices: Indices of sampled transitions
-            observations: Batch of observations
-            actions: Batch of actions
-            rewards: Batch of rewards
-            next_observations: Batch of next observations
-            dones: Batch of done flags
-            agent: Agent for computing priorities
-        """
-        # Compute priorities using strategy
-        priorities = self.priority_compute.compute_priority(
-            observations, actions, rewards, next_observations, dones, agent
-        )
+    #     Args:
+    #         indices: Indices of sampled transitions
+    #         observations: Batch of observations
+    #         actions: Batch of actions
+    #         rewards: Batch of rewards
+    #         next_observations: Batch of next observations
+    #         dones: Batch of done flags
+    #         agent: Agent for computing priorities
+    #     """
+    #     # Compute priorities using strategy
+    #     priorities = self.priority_compute.compute_priority(
+    #         observations, actions, rewards, next_observations, dones, agent
+    #     )
         
-        # Update priority trees
-        self.update_priorities(indices, priorities)
+    #     # Update priority trees
+    #     self.update_priorities(indices, priorities)
     
     def __len__(self) -> int:
         """Return current size of the buffer."""

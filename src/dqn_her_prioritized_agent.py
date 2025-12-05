@@ -13,7 +13,7 @@ sys.path.append('src')
 
 from network import DQN
 from prioritized_her_buffer import PrioritizedHERBuffer
-from priority_compute import PriorityComputer, get_priority_compute
+from priority_computer import PriorityComputer, get_priority_compute
 
 
 class DQNHERPrioritizedAgent:
@@ -89,8 +89,9 @@ class DQNHERPrioritizedAgent:
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=learning_rate)
         
         # Prioritized HER replay buffer
-        if priority_compute is None:
-            priority_compute = get_priority_compute(priority_strategy)
+        # if priority_compute is None:
+        #     priority_compute = get_priority_compute(priority_strategy)
+        # Let priority_compute remain None
         
         self.replay_buffer = PrioritizedHERBuffer(
             capacity=buffer_size,
@@ -169,7 +170,7 @@ class DQNHERPrioritizedAgent:
         # Sample batch with priorities
         observations, actions, rewards, next_observations, dones, indices, weights = \
             self.replay_buffer.sample(self.batch_size, self.device, agent=self)
-        
+
         # Compute current Q values
         current_q_values = self.policy_net(observations).gather(1, actions.unsqueeze(1)).squeeze(1)
         
@@ -194,9 +195,10 @@ class DQNHERPrioritizedAgent:
         self.optimizer.step()
         
         # Update priorities based on TD errors
-        self.replay_buffer.update_priorities_from_batch(
-            indices, observations, actions, rewards, next_observations, dones, self
-        )
+        # self.replay_buffer.update_priorities_from_batch(
+        #     indices, observations, actions, rewards, next_observations, dones, self
+        # )
+        self.replay_buffer.update_priorities(indices, td_errors.detach())
         
         # Update target network
         self.update_count += 1

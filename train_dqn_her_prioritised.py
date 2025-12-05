@@ -24,11 +24,11 @@ import matplotlib.pyplot as plt
 
 from environment import BitFlipEnv
 from dqn_her_prioritized_agent import DQNHERPrioritizedAgent
-from priority_compute import (
-    TDErrorPriorityComputer, 
-    UncertaintyPriorityComputer,
-    CompositePriorityComputer
-)
+# from priority_compute import (
+#     TDErrorPriorityComputer, 
+#     UncertaintyPriorityComputer,
+#     CompositePriorityComputer
+# )
 from utils import evaluate_agent
 
 
@@ -41,6 +41,7 @@ def train_dqn_her_prioritized(
     gamma: float = 0.98,
     epsilon_start: float = 1.0,
     epsilon_decay: float = 0.995,
+    epsilon_end: float = 0.01, 
     batch_size: int = 128,
     buffer_size: int = 100000,
     target_update_freq: int = 100,
@@ -99,15 +100,17 @@ def train_dqn_her_prioritized(
     print("=" * 50)
     
     # Create priority computer
-    if priority_strategy == 'composite':
-        # Example: Combine TD error and uncertainty
-        priority_compute = CompositePriorityComputer([
-            (TDErrorPriorityComputer(), 0.7),
-            (UncertaintyPriorityComputer(), 0.3)
-        ])
-        print("Using composite priority: 70% TD error + 30% uncertainty")
-    else:
-        priority_compute = None  # Use default from strategy name
+    # if priority_strategy == 'composite':
+    #     # Example: Combine TD error and uncertainty
+    #     priority_compute = CompositePriorityComputer([
+    #         (TDErrorPriorityComputer(), 0.7),
+    #         (UncertaintyPriorityComputer(), 0.3)
+    #     ])
+    #     print("Using composite priority: 70% TD error + 30% uncertainty")
+    # else:
+    #     priority_compute = None  # Use default from strategy name
+    
+    priority_compute = None
     
     # Initialize agent
     agent = DQNHERPrioritizedAgent(
@@ -118,6 +121,7 @@ def train_dqn_her_prioritized(
         gamma=gamma,
         epsilon_start=epsilon_start,
         epsilon_decay=epsilon_decay,
+        epsilon_end=epsilon_end,
         target_update_freq=target_update_freq,
         batch_size=batch_size,
         buffer_size=buffer_size,
@@ -163,8 +167,11 @@ def train_dqn_her_prioritized(
         
         # Training episodes
         for episode in range(episodes_per_epoch):
-            state, goal = env.reset()
-            observation = np.concatenate([state, goal])
+            obs_dict = env.reset()
+            observation = obs_dict['observation']
+            achieved_goal = obs_dict['achieved_goal']
+            desired_goal = obs_dict['desired_goal']
+
             episode_reward = 0
             done = False
             
@@ -173,16 +180,18 @@ def train_dqn_her_prioritized(
                 action = agent.select_action(observation, training=True)
                 
                 # Take step
-                next_state, reward, done, info = env.step(action)
-                next_observation = np.concatenate([next_state, goal])
+                next_obs_dict, reward, terminated, truncated, info = env.step(action)
+                next_observation = next_obs_dict['observation']
+                next_achieved_goal = next_obs_dict['achieved_goal']
+                done = terminated or truncated  
                 episode_reward += reward
                 
                 # Store transition
                 agent.store_transition(
                     observation, action, reward, next_observation, done,
-                    achieved_goal=state,
-                    desired_goal=goal,
-                    next_achieved_goal=next_state
+                    achieved_goal=achieved_goal,
+                    desired_goal=desired_goal,
+                    next_achieved_goal=next_achieved_goal
                 )
                 
                 # Update
@@ -195,7 +204,7 @@ def train_dqn_her_prioritized(
                         epoch_weights.append(metrics['mean_weight'])
                 
                 observation = next_observation
-                state = next_state
+                achieved_goal = next_achieved_goal
             
             # End episode (triggers HER relabeling)
             agent.end_episode()
@@ -345,5 +354,6 @@ if __name__ == "__main__":
         alpha=args.alpha,
         beta_start=args.beta_start,
         device=args.device,
-        save_dir=args.save_dir
+        save_dir=args.save_dir,
+        epsilon_end=0.2
     )
