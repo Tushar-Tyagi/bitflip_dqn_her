@@ -72,37 +72,22 @@ python train_dqn_her.py
 python train_dqn_her_prioritised.py
 ```
 
-### Compare Results and Plot
-
-```bash
-python compare_results.py
-```
-
-This will train both agents and generate comparison plots showing accuracy vs epoch.
-
 ### Plot Existing Results
 
+To visualize results from all three methods (including prioritised):
+
 ```bash
-python plot_results.py --dqn-results experiments/dqn_results.json --her-results experiments/dqn_her_results.json --her-prioritized-results experiments/dqn_her_prioritized_results.json
+python plot_results.py --dqn-results experiments/dqn_results.json --her-results experiments/dqn_her_results.json --her-prioritized-results experiments_prioritized/dqn_her_prioritized_results.json
 ```
-
-## Configuration
-
-Edit `config.yaml` to modify hyperparameters:
-- Network architecture
-- Learning rate
-- Replay buffer size
-- Batch size
-- Exploration parameters
-- Training episodes/epochs
 
 ## Results
 
-The project generates:
+Each training script generates:
 - Training curves (accuracy vs epoch)
 - Success rate comparisons
+- Mean reward progression
 - Episode length statistics
-- Saved model checkpoints
+- Saved model checkpoints in respective directories (`experiments/` or `experiments_prioritized/`)
 
 ## References
 
