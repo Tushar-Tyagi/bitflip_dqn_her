@@ -1,11 +1,6 @@
 """
 Train DQN-HER Agent with Prioritized Experience Replay on BitFlip Environment
 
-This script demonstrates the combination of:
-1. Hindsight Experience Replay (HER) - learn from failures
-2. Prioritized Experience Replay (PER) - focus on important transitions
-3. Deep Q-Learning (DQN) - value-based RL
-
 Usage:
     python train_dqn_her_prioritized.py --priority-strategy td_error
     python train_dqn_her_prioritized.py --priority-strategy uncertainty --alpha 0.7
@@ -24,11 +19,6 @@ import matplotlib.pyplot as plt
 
 from environment import BitFlipEnv
 from dqn_her_prioritized_agent import DQNHERPrioritizedAgent
-# from priority_compute import (
-#     TDErrorPriorityComputer, 
-#     UncertaintyPriorityComputer,
-#     CompositePriorityComputer
-# )
 from utils import evaluate_agent
 
 
@@ -102,16 +92,6 @@ def train_dqn_her_prioritized(
     print("=" * 50)
     
     # Create priority computer
-    # if priority_strategy == 'composite':
-    #     # Example: Combine TD error and uncertainty
-    #     priority_compute = CompositePriorityComputer([
-    #         (TDErrorPriorityComputer(), 0.7),
-    #         (UncertaintyPriorityComputer(), 0.3)
-    #     ])
-    #     print("Using composite priority: 70% TD error + 30% uncertainty")
-    # else:
-    #     priority_compute = None  # Use default from strategy name
-    
     priority_compute = None
     
     # Initialize agent

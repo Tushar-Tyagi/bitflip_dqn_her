@@ -30,7 +30,6 @@ class SumTree:
         self.full = False
         
         # Tree structure: [parent nodes, leaf nodes]
-        # Total nodes = capacity - 1 (internal) + capacity (leaves)
         self.tree = np.zeros(2 * capacity - 1, dtype=np.float32)
         
         # Data array to store actual transitions (indices only)
@@ -153,8 +152,6 @@ class SumTree:
 class MinTree:
     """
     Similar to SumTree but maintains minimum values.
-    
-    Useful for computing importance sampling weights efficiently.
     """
     
     def __init__(self, capacity: int):
