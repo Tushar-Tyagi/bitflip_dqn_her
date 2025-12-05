@@ -52,7 +52,9 @@ def train_dqn_her_prioritized(
     beta_start: float = 0.4,
     beta_frames: int = 100000,
     device: str = 'cpu',
-    save_dir: str = 'experiments_prioritized'
+    save_dir: str = 'experiments_prioritized',
+    verbose: bool = True,
+    save_results: bool = True
 ):
     """
     Train DQN-HER agent with prioritized replay.
@@ -226,47 +228,52 @@ def train_dqn_her_prioritized(
         results['epoch_weights'].append(mean_weight)
         
         # Evaluation
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % 1 == 0:
             eval_metrics = evaluate_agent(agent, env, num_episodes=eval_episodes)
             eval_success_rate = eval_metrics['success_rate']
             results['eval_success_rates'].append(eval_success_rate)
             
-            print(f"Epoch {epoch + 1}/{num_epochs} | "
-                  f"Train Success: {success_rate:.3f} | "
-                  f"Eval Success: {eval_success_rate:.3f} | "
-                  f"Mean Reward: {mean_reward:.2f} | "
-                  f"Loss: {mean_loss:.4f} | "
-                  f"Priority: {mean_priority:.4f} | "
-                  f"Weight: {mean_weight:.4f} | "
-                  f"Buffer: {len(agent.replay_buffer)} | "
-                  f"Epsilon: {agent.epsilon:.3f}")
+            if verbose:
+                print(f"Epoch {epoch + 1}/{num_epochs} | "
+                    f"Train Success: {success_rate:.3f} | "
+                    f"Eval Success: {eval_success_rate:.3f} | "
+                    f"Mean Reward: {mean_reward:.2f} | "
+                    f"Loss: {mean_loss:.4f} | "
+                    f"Priority: {mean_priority:.4f} | "
+                    f"Weight: {mean_weight:.4f} | "
+                    f"Buffer: {len(agent.replay_buffer)} | "
+                    f"Epsilon: {agent.epsilon:.3f}")
             
             # Save best model
-            if eval_success_rate > best_success_rate:
-                best_success_rate = eval_success_rate
-                agent.save(os.path.join(save_dir, f'dqn_her_prioritized_best.pt'))
+            if save_results:
+                if eval_success_rate > best_success_rate:
+                    best_success_rate = eval_success_rate
+                    agent.save(os.path.join(save_dir, f'dqn_her_prioritized_best.pt'))
         else:
-            print(f"Epoch {epoch + 1}/{num_epochs} | "
-                  f"Success: {success_rate:.3f} | "
-                  f"Reward: {mean_reward:.2f} | "
-                  f"Loss: {mean_loss:.4f} | "
-                  f"Priority: {mean_priority:.4f} | "
-                  f"Buffer: {len(agent.replay_buffer)}")
+            if verbose:
+                print(f"Epoch {epoch + 1}/{num_epochs} | "
+                    f"Success: {success_rate:.3f} | "
+                    f"Reward: {mean_reward:.2f} | "
+                    f"Loss: {mean_loss:.4f} | "
+                    f"Priority: {mean_priority:.4f} | "
+                    f"Buffer: {len(agent.replay_buffer)}")
     
     # Save final model
     agent.save(os.path.join(save_dir, 'dqn_her_prioritized_final.pt'))
     
     # Save results
-    with open(os.path.join(save_dir, 'dqn_her_prioritized_results.json'), 'w') as f:
-        json.dump(results, f, indent=2)
+    if save_results:
+        with open(os.path.join(save_dir, 'dqn_her_prioritized_results.json'), 'w') as f:
+            json.dump(results, f, indent=2)
     
-    # Plot results
-    plot_results(results, save_dir)
+        # Plot results
+        plot_results(results, save_dir)
     
     print(f"\nTraining complete!")
-    print(f"Best eval success rate: {best_success_rate:.3f}")
+    # print(f"Best eval success rate: {best_success_rate:.3f}")
     print(f"Final training success rate: {results['epoch_success_rates'][-1]:.3f}")
-    print(f"Results saved to: {save_dir}")
+    if save_results:
+        print(f"Results saved to: {save_dir}")
     
     return results, agent
 
@@ -333,7 +340,7 @@ if __name__ == "__main__":
                        choices=['future', 'final', 'episode', 'random'],
                        help='HER strategy')
     parser.add_argument('--her-k', type=int, default=4, help='Number of HER goals')
-    parser.add_argument('--priority-strategy', type=str, default='closeness_to_goal',
+    parser.add_argument('--priority-strategy', type=str, default='td_error',
                        choices=['td_error', 'closeness_to_goal'],
                        help='Priority computation strategy')
     parser.add_argument('--alpha', type=float, default=0.6, help='Priority exponent')

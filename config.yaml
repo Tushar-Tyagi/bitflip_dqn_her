@@ -29,9 +29,11 @@ dqn_her:
   her_k: 4  # Number of additional goals to sample per transition
 
 training:
-  num_epochs: 200
+  num_epochs: 50
   episodes_per_epoch: 50
   eval_episodes: 100
+  save_results: False
+  verbose: True
   save_freq: 20
   log_freq: 1
   
