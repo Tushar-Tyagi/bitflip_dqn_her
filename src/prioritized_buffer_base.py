@@ -59,6 +59,8 @@ class PrioritizedBufferBase(ABC):
         self.priority_compute = priority_compute # or TDErrorPriorityComputer(epsilon=epsilon)
         
         # Sum tree for efficient priority sampling
+        self.closness_to_goal_sum_tree = SumTree(capacity)
+        self.closness_to_goal_min_tree = MinTree(capacity)
         self.sum_tree = SumTree(capacity)
         self.min_tree = MinTree(capacity)
         
@@ -211,6 +213,34 @@ class PrioritizedBufferBase(ABC):
             
             # Track max priority
             self.max_priority = max(self.max_priority, priority)
+
+    
+    def update_closeness_to_goal_priorities(self, indices: torch.Tensor):
+         """
+        Update closeness to goal priorities for sampled transitions.
+        
+        Args:
+            indices: Indices of transitions (can be tensor or array)
+        """
+         
+         if isinstance(indices, torch.Tensor):
+             indices = indices.cpu().numpy()
+        
+         for idx in indices:
+            #get closeness to goal priority for the given index
+            priority = max(self.closness_to_goal_sum_tree.get_priority(idx), self.epsilon)
+
+            # Apply alpha exponent
+            priority_alpha = priority ** self.alpha
+            
+            # Update trees
+            tree_idx = int(idx) + self.sum_tree.capacity - 1
+            self.sum_tree.update(tree_idx, priority_alpha)
+            self.min_tree.update(int(idx), priority_alpha)
+            
+            # Track max priority
+            self.max_priority = max(self.max_priority, priority)
+
     
     # def update_priorities_from_batch(self,
     #                                  indices: torch.Tensor,

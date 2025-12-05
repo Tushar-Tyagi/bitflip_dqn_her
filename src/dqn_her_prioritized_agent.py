@@ -60,7 +60,7 @@ class DQNHERPrioritizedAgent:
             hidden_sizes: Hidden layer sizes for network
             her_strategy: HER strategy ('future', 'final', 'episode', 'random')
             her_k: Number of additional goals to sample per transition
-            priority_strategy: Strategy for priorities ('td_error', 'policy_loss', etc.)
+            priority_strategy: Strategy for priorities ('td_error', 'closeness_to_goal'.)
             priority_compute: Custom priority computer (overrides priority_strategy)
             alpha: Priority exponent (0=uniform, 1=full prioritization)
             beta_start: Initial importance sampling exponent
@@ -92,6 +92,7 @@ class DQNHERPrioritizedAgent:
         # if priority_compute is None:
         #     priority_compute = get_priority_compute(priority_strategy)
         # Let priority_compute remain None
+        self.priority_strategy = priority_strategy,
         
         self.replay_buffer = PrioritizedHERBuffer(
             capacity=buffer_size,
@@ -198,7 +199,10 @@ class DQNHERPrioritizedAgent:
         # self.replay_buffer.update_priorities_from_batch(
         #     indices, observations, actions, rewards, next_observations, dones, self
         # )
-        self.replay_buffer.update_priorities(indices, td_errors.detach())
+        if self.priority_strategy == 'td_error':
+            self.replay_buffer.update_priorities(indices, td_errors.detach())
+        else:
+            self.replay_buffer.update_closeness_to_goal_priorities(indices)
         
         # Update target network
         self.update_count += 1

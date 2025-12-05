@@ -92,6 +92,24 @@ class PrioritizedHERBuffer(PrioritizedBufferBase):
         }
         self.current_episode.append(transition)
     
+
+    def compute_closeness_to_goal_priority(self, final_state_or_her_goal, desired_goal):
+        """
+        Computes priority of a transition based on the closeness of its HER goal (if goal was resampled) or final state (if goal was not resampled) to the true goal
+        
+        Args:
+            final_state_or_her_goal: state of the transitions HER goal (if goal was resampled) or final state (if goal was not resampled)
+            desired_goal: true goal state of the episode
+            
+        Returns:
+            Priority of the transition
+        """
+        required_actions_to_reach_goal = sum(a != b for a, b in zip(final_state_or_her_goal, desired_goal))
+        priority = self.goal_size - required_actions_to_reach_goal
+
+        return priority
+
+
     def end_episode(self):
         """
         Process episode with HER relabeling and store transitions.
@@ -106,9 +124,17 @@ class PrioritizedHERBuffer(PrioritizedBufferBase):
             return
         
         episode_length = len(self.current_episode)
+
+        final_transition = self.current_episode[-1]
+        final_state = final_transition['next_achieved_goal']
         
         # Store original transitions
         for t, transition in enumerate(self.current_episode):
+
+            # Add priorities for closenss to goal
+            self.closness_to_goal_sum_tree.add(self.compute_closeness_to_goal_priority(final_state, transition['desired_goal']), self.position)
+            self.closness_to_goal_min_tree.update(self.position, self.compute_closeness_to_goal_priority(final_state, transition['desired_goal']))
+
             self.add(
                 transition['observation'],
                 transition['action'],
@@ -142,6 +168,10 @@ class PrioritizedHERBuffer(PrioritizedBufferBase):
                 
                 # Check if goal is achieved
                 new_done = np.array_equal(transition['next_achieved_goal'], new_goal)
+
+                # Add priorities for closenss to goal
+                self.closness_to_goal_sum_tree.add(self.compute_closeness_to_goal_priority(new_goal, transition['desired_goal']), self.position)
+                self.closness_to_goal_min_tree.update(self.position, self.compute_closeness_to_goal_priority(new_goal, transition['desired_goal']))
                 
                 # Store relabeled transition
                 self.add(

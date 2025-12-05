@@ -333,8 +333,8 @@ if __name__ == "__main__":
                        choices=['future', 'final', 'episode', 'random'],
                        help='HER strategy')
     parser.add_argument('--her-k', type=int, default=4, help='Number of HER goals')
-    parser.add_argument('--priority-strategy', type=str, default='td_error',
-                       choices=['td_error', 'policy_loss', 'uncertainty', 'curiosity', 'composite'],
+    parser.add_argument('--priority-strategy', type=str, default='closeness_to_goal',
+                       choices=['td_error', 'closeness_to_goal'],
                        help='Priority computation strategy')
     parser.add_argument('--alpha', type=float, default=0.6, help='Priority exponent')
     parser.add_argument('--beta-start', type=float, default=0.4, help='Initial IS exponent')
