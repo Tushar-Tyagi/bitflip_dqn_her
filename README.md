@@ -45,6 +45,7 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+Refer to the USAGE_GUIDE for installation and more details on the project implementation.
 
 ### Train DQN
 
