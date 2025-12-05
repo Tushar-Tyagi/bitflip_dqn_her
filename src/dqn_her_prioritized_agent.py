@@ -89,9 +89,6 @@ class DQNHERPrioritizedAgent:
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=learning_rate)
         
         # Prioritized HER replay buffer
-        # if priority_compute is None:
-        #     priority_compute = get_priority_compute(priority_strategy)
-        # Let priority_compute remain None
         self.priority_strategy = priority_strategy,
         
         self.replay_buffer = PrioritizedHERBuffer(
@@ -196,9 +193,6 @@ class DQNHERPrioritizedAgent:
         self.optimizer.step()
         
         # Update priorities based on TD errors
-        # self.replay_buffer.update_priorities_from_batch(
-        #     indices, observations, actions, rewards, next_observations, dones, self
-        # )
         if self.priority_strategy == 'td_error':
             self.replay_buffer.update_priorities(indices, td_errors.detach())
         else:

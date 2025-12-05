@@ -1,6 +1,5 @@
 """
 Generic Prioritized Replay Buffer Base Class
-
 """
 
 import numpy as np
@@ -9,7 +8,7 @@ from typing import Tuple, Optional
 from abc import ABC, abstractmethod
 
 from sum_tree import SumTree, MinTree
-from priority_computer import PriorityComputer # , TDErrorPriorityComputer
+from priority_computer import PriorityComputer
 
 
 class PrioritizedBufferBase(ABC):
@@ -20,11 +19,6 @@ class PrioritizedBufferBase(ABC):
     - Priority-based sampling using sum-tree
     - Importance sampling weight computation
     - Dynamic priority updates
-    - Pluggable priority computation strategies
-    
-    Subclasses must implement:
-    - store_transition(): How to store a single transition
-    - get_transition(): How to retrieve a transition by index
     """
     
     def __init__(self,
@@ -84,7 +78,6 @@ class PrioritizedBufferBase(ABC):
     def add(self, *args, **kwargs):
         """
         Add transition with maximum priority.
-        
         New transitions get max priority to ensure they're sampled at least once.
         """
         # Store the transition
@@ -240,35 +233,6 @@ class PrioritizedBufferBase(ABC):
             
             # Track max priority
             self.max_priority = max(self.max_priority, priority)
-
-    
-    # def update_priorities_from_batch(self,
-    #                                  indices: torch.Tensor,
-    #                                  observations: torch.Tensor,
-    #                                  actions: torch.Tensor,
-    #                                  rewards: torch.Tensor,
-    #                                  next_observations: torch.Tensor,
-    #                                  dones: torch.Tensor,
-    #                                  agent: object):
-    #     """
-    #     Compute and update priorities using the priority computer.
-        
-    #     Args:
-    #         indices: Indices of sampled transitions
-    #         observations: Batch of observations
-    #         actions: Batch of actions
-    #         rewards: Batch of rewards
-    #         next_observations: Batch of next observations
-    #         dones: Batch of done flags
-    #         agent: Agent for computing priorities
-    #     """
-    #     # Compute priorities using strategy
-    #     priorities = self.priority_compute.compute_priority(
-    #         observations, actions, rewards, next_observations, dones, agent
-    #     )
-        
-    #     # Update priority trees
-    #     self.update_priorities(indices, priorities)
     
     def __len__(self) -> int:
         """Return current size of the buffer."""

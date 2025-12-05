@@ -13,7 +13,6 @@ from priority_computer import PriorityComputer #, TDErrorPriorityComputer
 class PrioritizedHERBuffer(PrioritizedBufferBase):
     """
     HER buffer with priority-based sampling.
-
     """
     
     def __init__(self,
@@ -280,9 +279,7 @@ class PrioritizedHERBuffer(PrioritizedBufferBase):
 
 
 def test_prioritized_her_buffer():
-    """Test prioritized HER buffer functionality."""
-    # from priority_compute import TDErrorPriorityComputer
-    
+    """Test prioritized HER buffer functionality."""    
     print("Testing Prioritized HER Buffer...")
     
     n_bits = 5
@@ -326,12 +323,6 @@ def test_prioritized_her_buffer():
             break
     
     buffer.end_episode()
-    
-    # print(f"\nBuffer size after one episode: {len(buffer)}")
-    # print(f"Expected: ~{5 + 5 * 4} transitions (original + HER)")
-    # print(f"Max priority: {buffer.max_priority:.4f}")
-    
-
 
 if __name__ == "__main__":
     test_prioritized_her_buffer()

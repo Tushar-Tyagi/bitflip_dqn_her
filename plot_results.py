@@ -178,6 +178,8 @@ def main():
                        help='Path to DQN results JSON file')
     parser.add_argument('--her-results', type=str, default='experiments/dqn_her_results.json',
                        help='Path to DQN-HER results JSON file')
+    parser.add_argument('--her-priotized-results', type=str, default='experiments/dqn_her_prioritized-results.json',
+                       help='Path to DQN-HER results JSON file')
     parser.add_argument('--save-dir', type=str, default='experiments',
                        help='Directory to save plots')
     

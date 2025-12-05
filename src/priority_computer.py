@@ -1,7 +1,5 @@
 """
 Priority Computation Strategies for Prioritized Experience Replay
-
-This module provides a pluggable interface for computing priorities based on different criteria
 """
 
 import torch
@@ -13,9 +11,6 @@ from typing import Tuple, Optional, List
 class PriorityComputer(ABC):
     """
     Abstract base class for computing transition priorities.
-    
-    Subclasses must implement compute_priority() to calculate priorities
-    based on their specific strategy (TD error, policy loss, etc.)
     """
     
     def __init__(self, epsilon: float = 1e-6):

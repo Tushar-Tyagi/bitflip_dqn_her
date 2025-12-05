@@ -158,9 +158,9 @@ try:
         agent.end_episode()
     
     print(f"   Buffer size after 5 episodes: {len(agent.replay_buffer)}")
-    print("   âœ“ Training loop working")
+    print("Training loop working")
 except Exception as e:
-    print(f"   âœ— Training error: {e}")
+    print(f"Training error: {e}")
     sys.exit(1)
 
 # Check file structure
@@ -184,9 +184,9 @@ for file in required_files:
         missing_files.append(file)
 
 if missing_files:
-    print(f"   âš  Missing files: {missing_files}")
+    print(f"Missing files: {missing_files}")
 else:
-    print("   âœ“ All required files present")
+    print("All required files present")
 
 # Summary
 print("\n" + "="*60)
