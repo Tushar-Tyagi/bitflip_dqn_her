@@ -228,7 +228,7 @@ def train_dqn_her_prioritized(
             if save_results:
                 if eval_success_rate > best_success_rate:
                     best_success_rate = eval_success_rate
-                    agent.save(os.path.join(save_dir, f'dqn_her_prioritized_best.pt'))
+                    agent.save(os.path.join(save_dir, f'dqn_her_{priority_strategy}_prioritized_best.pt'))
         else:
             if verbose:
                 print(f"Epoch {epoch + 1}/{num_epochs} | "
@@ -239,15 +239,15 @@ def train_dqn_her_prioritized(
                     f"Buffer: {len(agent.replay_buffer)}")
     
     # Save final model
-    agent.save(os.path.join(save_dir, 'dqn_her_prioritized_final.pt'))
+    agent.save(os.path.join(save_dir, f'dqn_her_{priority_strategy}_prioritized_final.pt'))
     
     # Save results
     if save_results:
-        with open(os.path.join(save_dir, 'dqn_her_prioritized_results.json'), 'w') as f:
+        with open(os.path.join(save_dir, f'dqn_her_{priority_strategy}_prioritized_results.json'), 'w') as f:
             json.dump(results, f, indent=2)
     
         # Plot results
-        plot_results(results, save_dir)
+        # plot_results(results, save_dir)
     
     print(f"\nTraining complete!")
     # print(f"Best eval success rate: {best_success_rate:.3f}")

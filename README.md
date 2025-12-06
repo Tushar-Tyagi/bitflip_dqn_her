@@ -100,8 +100,9 @@ Edit `config.yaml` to modify hyperparameters:
 The project generates:
 - Training curves (accuracy vs epoch)
 - Success rate comparisons
-- Episode length statistics
 - Saved model checkpoints
+
+Results from the comparison experiments can be found in the "results" folder.
 
 ## References
 
