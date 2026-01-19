@@ -39,6 +39,15 @@ python train_dqn.py
 python train_dqn_her.py
 ```
 
+**Train DQN-HER-Prioritised with different priority strategies:**
+```bash
+# Using TD-Error priority (default)
+python train_dqn_her_prioritised.py --priority-strategy td_error
+
+# Using Closeness-to-Goal priority
+python train_dqn_her_prioritised.py --priority-strategy closeness_to_goal
+```
+
 ### 4. Plot Existing Results
 
 If you already have trained models and just want to regenerate plots:
@@ -47,27 +56,39 @@ If you already have trained models and just want to regenerate plots:
 python plot_results.py --dqn-results experiments/dqn_results.json --her-results experiments/dqn_her_results.json
 ```
 
-## Configuration
+## Priority Strategies for DQN-HER-Prioritised
 
-Edit `config.yaml` to modify hyperparameters:
+The prioritised version supports two different priority computation strategies:
 
-```yaml
-environment:
-  n_bits: 25  # Number of bits (can change to 10, 15, etc.)
-  
-dqn:
-  learning_rate: 0.001
-  epsilon_decay: 0.995
-  batch_size: 128
-  
-dqn_her:
-  her_strategy: "future"  # Options: future, final, episode, random
-  her_k: 4  # Number of HER goals per transition
-  
-training:
-  num_epochs: 200
-  episodes_per_epoch: 50
+### 1. TD-Error Priority (Default)
+
+Prioritises transitions based on the magnitude of temporal difference error:
+- Higher TD error = more surprising/informative transitions
+- Good for general learning improvements
+- Formula: `priority = |TD_error| + ε`
+
+```bash
+python train_dqn_her_prioritised.py --priority-strategy td_error --alpha 0.6
 ```
+
+### 2. Closeness-to-Goal Priority
+
+Prioritises transitions based on proximity to achieving the goal:
+- Focuses learning on near-success experiences
+- Particularly effective for sparse reward tasks
+- Based on Hamming distance to goal state
+
+```bash
+python train_dqn_her_prioritised.py --priority-strategy closeness_to_goal --alpha 0.6
+```
+
+### Priority Hyperparameters
+
+- `--alpha`: Determines how much prioritisation is used (0 = uniform, 1 = full priority). Default: 0.6
+- `--beta-start`: Initial importance sampling correction. Default: 0.4
+- `--priority-strategy`: Choice between 'td_error' or 'closeness_to_goal'
+
+**Note:** `config.yaml` is used for DQN and DQN-HER training, but not for DQN-HER-Prioritised. Use command-line arguments instead.
 
 ## Project Structure
 
@@ -130,12 +151,13 @@ DQN enhanced with Hindsight Experience Replay:
 
 ### Key Differences
 
-| Feature | DQN | DQN-HER |
-|---------|-----|---------|
-| Replay Buffer | Standard transitions | Episode-based with goal relabeling |
-| Sample Efficiency | Low in sparse rewards | High in sparse rewards |
-| Data Augmentation | No | Yes (HER relabeling) |
-| Training Speed | Slower convergence | Faster convergence |
+| Feature | DQN | DQN-HER | DQN-HER-Prioritised |
+|---------|-----|---------|---------------------|
+| Replay Buffer | Standard transitions | Episode-based with goal relabeling | Prioritised episode-based with goal relabeling |
+| Sample Efficiency | Low in sparse rewards | High in sparse rewards | Very high in sparse rewards |
+| Data Augmentation | No | Yes (HER relabeling) | Yes (HER relabeling) |
+| Priority Sampling | No | No | Yes (TD-error or closeness-to-goal) |
+| Training Speed | Slower convergence | Faster convergence | Fastest convergence |
 
 ## Expected Results
 
@@ -143,6 +165,7 @@ Based on the BitFlip-25 environment with default hyperparameters:
 
 - **DQN**: Typically achieves 10-30% success rate (struggles with sparse rewards)
 - **DQN-HER**: Typically achieves 80-95% success rate (benefits from HER)
+- **DQN-HER-Prioritised**: Achieves similar or better success rate with faster convergence (benefits from both HER and prioritisation)
 
 The plot will show:
 1. **Accuracy vs Epoch**: DQN-HER learns much faster

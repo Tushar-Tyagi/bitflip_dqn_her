@@ -62,6 +62,7 @@ def train_dqn_her(config: dict):
     # Training metrics
     epoch_rewards = []
     epoch_success_rates = []
+    eval_success_rates = []
     epoch_losses = []
     epoch_q_values = []
     all_episode_rewards = []
@@ -78,7 +79,8 @@ def train_dqn_her(config: dict):
         epoch_q_value_list = []
         
         # Training episodes
-        for episode in tqdm(range(episodes_per_epoch), desc=f"Epoch {epoch}/{num_epochs}"):
+        # for episode in tqdm(range(episodes_per_epoch), desc=f"Epoch {epoch}/{num_epochs}"):
+        for episode in range(episodes_per_epoch):
             obs_dict = env.reset()
             observation = obs_dict['observation']
             achieved_goal = obs_dict['achieved_goal']
@@ -132,25 +134,32 @@ def train_dqn_her(config: dict):
         epoch_success_rates.append(success_rate)
         epoch_losses.append(mean_loss)
         epoch_q_values.append(mean_q_value)
+
+        if (epoch + 1) % 1 == 0:
+            eval_metrics = evaluate_agent(agent, env, num_episodes=config['training']['eval_episodes'])
+            eval_success_rate = eval_metrics['success_rate']
+            eval_success_rates.append(eval_success_rate)
         
         # Print progress
         if epoch % config['training']['log_freq'] == 0:
-            print_training_progress(epoch, num_epochs, {
-                'Mean Reward': mean_reward,
-                'Success Rate': success_rate,
-                'Loss': mean_loss,
-                'Q-value': mean_q_value,
-                'Epsilon': agent.epsilon,
-                'Buffer Size': len(agent.replay_buffer)
-            })
+            if config['training']['verbose']:
+                print_training_progress(epoch, num_epochs, {
+                    'Mean Reward': mean_reward,
+                    'Success Rate': success_rate,
+                    'Loss': mean_loss,
+                    'Q-value': mean_q_value,
+                    'Epsilon': agent.epsilon,
+                    'Buffer Size': len(agent.replay_buffer)
+                })
         
         # Save checkpoint
         if epoch % config['training']['save_freq'] == 0:
-            checkpoint_path = os.path.join(
-                config['experiment']['save_dir'],
-                f"dqn_her_checkpoint_epoch_{epoch}.pt"
-            )
-            agent.save(checkpoint_path)
+            if config['training']['save_results']:
+                checkpoint_path = os.path.join(
+                    config['experiment']['save_dir'],
+                    f"dqn_her_checkpoint_epoch_{epoch}.pt"
+                )
+                agent.save(checkpoint_path)
     
     # Final evaluation
     print("\nFinal Evaluation...")
@@ -159,8 +168,9 @@ def train_dqn_her(config: dict):
     print(f"Mean Episode Length: {eval_metrics['mean_episode_length']:.2f}")
     
     # Save final model
-    final_model_path = os.path.join(config['experiment']['save_dir'], 'dqn_her_final.pt')
-    agent.save(final_model_path)
+    if config['training']['save_results']:
+        final_model_path = os.path.join(config['experiment']['save_dir'], 'dqn_her_final.pt')
+        agent.save(final_model_path)
     
     # Save results
     results = {
@@ -168,6 +178,7 @@ def train_dqn_her(config: dict):
         'config': config,
         'epoch_rewards': epoch_rewards,
         'epoch_success_rates': epoch_success_rates,
+        'eval_success_rates': eval_success_rates,
         'epoch_losses': epoch_losses,
         'epoch_q_values': epoch_q_values,
         'all_episode_rewards': all_episode_rewards,
@@ -176,8 +187,9 @@ def train_dqn_her(config: dict):
         'total_episodes': num_epochs * episodes_per_epoch
     }
     
-    results_path = os.path.join(config['experiment']['save_dir'], 'dqn_her_results.json')
-    save_results(results, results_path)
+    if config['training']['save_results']:
+        results_path = os.path.join(config['experiment']['save_dir'], 'dqn_her_results.json')
+        save_results(results, results_path)
     
     print("\nTraining completed!")
     return results
